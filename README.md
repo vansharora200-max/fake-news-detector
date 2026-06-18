@@ -3,7 +3,7 @@
 An end-to-end fake news detection system built using NLP, 
 Machine Learning, and Generative AI.
 
-> Live Demo: [Add Streamlit link after deployment]
+>[[Live Demo](https://fake-news-detector-lx6xras373wxp86nkram4p.streamlit.app/)]
 
 ---
 
