@@ -132,8 +132,8 @@ Displayed in Streamlit Interface
 
 Due to repository size limitations, dataset files are not included.
 
-Download:
-https://www.kaggle.com/datasets/saurabhshahane/fake-news-classification
+- Download: ([Dataset](https://www.kaggle.com/datasets/saurabhshahane/fake-news-classification))
+
 ---
 
 ## Setup
