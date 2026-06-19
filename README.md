@@ -93,20 +93,13 @@ Fake_News_Detector/
 
 ## How It Works
 
-User Input (News Article)
-            ↓
-Text Cleaning & Preprocessing
-            ↓
-TF-IDF Vectorization
-            ↓
-Logistic Regression Model
-            ↓
-Prediction + Confidence Score
-            ↓
-Google Gemini Explanation
-            ↓
-Displayed in Streamlit Interface
-
+1. User enters a news article.
+2. The article is cleaned and preprocessed.
+3. TF-IDF converts the text into numerical features.
+4. The Logistic Regression model predicts whether the article is Fake or Real.
+5. A confidence score is generated.
+6. Google Gemini explains the prediction in natural language.
+7. Results are displayed in the Streamlit interface.
 ---
 
 ## Tech Stack
