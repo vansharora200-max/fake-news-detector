@@ -66,10 +66,13 @@ with tab1:
             st.divider()
             st.subheader("AI Explanation")
 
-            with st.spinner("Generating Explanation..."):
-                explanation = explain_prediction(user_input, result)
-            
-            st.markdown(explanation)
+            enable_explanation = st.checkbox("Generate AI Explanation (uses API limits)", value=True)
+            if enable_explanation:
+                with st.spinner("Generating Explanation..."):
+                    explanation = explain_prediction(user_input, result)   
+                st.markdown(explanation)
+            else:
+                st.info("AI Explanation disabled.")
 
             with st.expander("View Preprocessed Text"):
                 st.caption(
