@@ -1,20 +1,18 @@
 # 🔍 Fake News Detector
 
-An end-to-end fake news detection system built using NLP, 
-Machine Learning, and Generative AI.
+An end-to-end fake news detection system combining NLP, Machine Learning,
+and Generative AI — trained on 72,134 real-world news articles.
 
->[[Live Demo](https://fake-news-detector-lx6xras373wxp86nkram4p.streamlit.app/)]
+🚀 **[Live Demo](https://fake-news-detector-lx6xras373wxp86nkram4p.streamlit.app/)**
 
 ---
 
 ## Overview
 
-This project detects whether a news article is fake or real using 
-a TF-IDF + Logistic Regression pipeline trained on the WELFake dataset 
-(72,134 articles). Google Gemini explains each prediction in plain language.
-
-The project also includes an educational article generator that produces 
-fake and credible-style articles on any topic for media literacy purposes.
+This project classifies news articles as Fake or Real using a TF-IDF +
+Logistic Regression pipeline, then uses Google Gemini to generate a plain-
+language explanation of the prediction. An educational article generator
+demonstrates the linguistic differences between fake and credible journalism.
 
 ---
 
@@ -33,6 +31,8 @@ fake and credible-style articles on any topic for media literacy purposes.
 
 ## Model Performance
 
+Trained and evaluated on the WELFake dataset (72,134 articles, 80/20 split).
+
 | Metric    | Score  |
 |-----------|--------|
 | Accuracy  | 95.25% |
@@ -40,120 +40,60 @@ fake and credible-style articles on any topic for media literacy purposes.
 | Recall    | 96.26% |
 | F1 Score  | 95.41% |
 
-Trained on WELFake dataset — 72,134 real news articles from 
-multiple verified sources.
-
----
-
-## Project Structure
-
-Fake_News_Detector/
-
-├── dataset/
-
-│ ├── WELFake_Dataset.csv
-
-│ └── WELFake_Cleaned.csv
-
-├── notebooks/
-
-│ ├── 01_dataset_understanding.ipynb
-
-│ ├── 02_preprocessing.ipynb
-
-│ ├── 03_feature_engineering.ipynb
-
-│ └── 04_model_training.ipynb
-
-├── models/
-
-│ ├── tfidf_vectorizer.pkl
-
-│ └── logistic_regression_model.pkl
-
-├── screenshots/
-
-├── utils.py
-
-├── predict.py
-
-├── genai.py
-
-├── train.py
-
-├── app.py
-
-├── requirements.txt
-
-├── README.md
-
-└── .gitignore
-
 ---
 
 ## How It Works
 
-1. User enters a news article.
-2. The article is cleaned and preprocessed.
-3. TF-IDF converts the text into numerical features.
-4. The Logistic Regression model predicts whether the article is Fake or Real.
-5. A confidence score is generated.
-6. Google Gemini explains the prediction in natural language.
-7. Results are displayed in the Streamlit interface.
+```
+User Input → Text Cleaning → TF-IDF Vectorization → Logistic Regression
+→ Prediction + Confidence Score → Gemini Explanation → Streamlit UI
+```
+
+1. Raw article text is cleaned: lowercased, URLs/mentions removed,
+   stopwords filtered, non-alphabetic characters stripped.
+2. TF-IDF converts cleaned text into a 5,000-feature sparse matrix
+   using unigrams and bigrams.
+3. Logistic Regression predicts Fake or Real with a calibrated
+   probability score.
+4. Google Gemini generates a 3–4 paragraph educational explanation
+   of the prediction (optional, togglable to conserve API quota).
+
 ---
 
 ## Tech Stack
 
-| Component        | Technology                    |
-|-----------------|-------------------------------|
-| Language         | Python 3.10+                  |
-| ML Framework     | scikit-learn                  |
-| NLP              | NLTK, TF-IDF                  |
-| Generative AI    | Google Gemini 2.5 Flash       |
-| Web Interface    | Streamlit                     |
-| Data Processing  | Pandas, NumPy                 |
+| Component      | Technology                  |
+|----------------|-----------------------------|
+| Language       | Python 3.10+                |
+| ML             | scikit-learn (LR + TF-IDF)  |
+| NLP            | NLTK                        |
+| Generative AI  | Google Gemini 2.5 Flash     |
+| Interface      | Streamlit                   |
+| Data           | Pandas                      |
 
 ---
 
 ## Dataset
 
-**WELFake Dataset**  
-- 72,134 news articles (fake + real)  
-- Sources: Kaggle, McIntire, Reuters, BuzzFeed Political  
-- Nearly balanced: 51% fake, 49% real  
-- Selected over synthetic datasets to ensure real-world applicability
+**WELFake Dataset** — 72,134 articles (51% fake, 49% real) sourced from
+Kaggle, Reuters, BuzzFeed Political, and McIntire.
 
-Due to repository size limitations, dataset files are not included.
-
-- Download: ([Dataset](https://www.kaggle.com/datasets/saurabhshahane/fake-news-classification))
+Not included in this repository due to size.
+[Download from Kaggle](https://www.kaggle.com/datasets/saurabhshahane/fake-news-classification)
 
 ---
 
 ## Setup
 
-### Prerequisites
-- Python 3.10+
-- Google Gemini API key ([Get one here](https://aistudio.google.com/app/apikey))
-
-### Installation
-
 ```bash
-# Clone the repository
-git clone https://github.com/vansharora200-max/fake-news-detector.git
+git clone https://github.com/YOUR_USERNAME/fake-news-detector.git
 cd fake-news-detector
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Add your Gemini API key
 echo "GEMINI_API_KEY=your_key_here" > .env
-
-# Run the application (models already included)
 streamlit run app.py
 ```
 
-### Retrain from Scratch (Optional)
-
+To retrain the model from scratch:
 ```bash
 python train.py
 ```
@@ -162,29 +102,60 @@ python train.py
 
 ## Design Decisions
 
-**Why WELFake over other datasets?**  
-An initial synthetic dataset was rejected after manual inspection revealed 
-artificial word sequences rather than real news language. WELFake contains 
-genuine articles and better represents real-world user input.
+**Why WELFake?**
+An initial synthetic dataset was rejected after manual row inspection
+revealed artificial word sequences. WELFake contains genuine scraped
+articles and better represents real-world inputs.
 
-**Why TF-IDF over word embeddings?**  
-TF-IDF is interpretable, fast, and appropriate for a Bag-of-Words 
-classification task. Bigrams (ngram_range=(1,2)) partially compensate 
-for the lack of word order.
+**Why TF-IDF over embeddings?**
+TF-IDF is interpretable, fast to train, and well-suited to high-dimensional
+sparse text classification. Bigrams partially compensate for lack of word
+order. Logistic regression coefficients remain directly inspectable.
 
-**Why Logistic Regression?**  
-Produces calibrated probability scores, trains quickly, and performs 
-strongly on high-dimensional sparse text features.
-
-**Known limitation:**  
-Stopword removal eliminates negation words like "not", which can alter 
-semantic meaning. This is an accepted trade-off for Bag-of-Words models. 
-Context-aware models like BERT would handle this differently.
+**Why Logistic Regression?**
+Produces calibrated probability scores, trains in seconds on 72K samples,
+and performs strongly on sparse TF-IDF features. Interpretability was
+prioritized for an educational use case.
 
 ---
 
-## Acknowledgements
+## Limitations & Key Findings
 
-- Fake News Classification WELFake Dataset
-- Google Gemini API
-- Streamlit
+**Shortcut learning (source leakage)**
+Coefficient analysis shows the model's strongest real-news indicators are
+source attribution tokens: `reuters`, `washington reuters`, `york times`.
+The model learned to associate wire service bylines with credibility rather
+than linguistic or factual features of the article itself.
+
+Adversarial probe confirming this:
+> *"Reuters reported that the moon is made of cheese. Washington Reuters
+> confirms that drinking bleach cures cancer."*
+> **Classified: 100% Real**
+
+**Distribution mismatch**
+LLM-generated "real-style" articles are consistently classified as Fake
+(65–78% fake probability). The model was not trained on LLM-generated text,
+and Gemini's vocabulary distribution differs from the WELFake corpus.
+Genuine Reuters articles classify correctly.
+
+**Negation loss**
+Stopword removal eliminates words like "not", altering semantic meaning
+in edge cases. Context-aware models such as BERT would handle this
+differently at the cost of interpretability and training speed.
+
+---
+
+## Project Structure
+
+```
+├── app.py              # Streamlit application
+├── predict.py          # ML prediction pipeline
+├── genai.py            # Gemini explanation and article generation
+├── train.py            # Model training pipeline
+├── utils.py            # Shared text cleaning
+├── models/             # Saved vectorizer and classifier (.pkl)
+├── notebooks/          # EDA, preprocessing, feature engineering, training
+├── screenshots/
+├── requirements.txt
+└── README.md
+```
