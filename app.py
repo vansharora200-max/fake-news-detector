@@ -36,7 +36,9 @@ with tab1:
         height=200,
         label_visibility="collapsed"
     )
-
+    
+    enable_explanation = st.checkbox("Generate AI Explanation (uses API limits)", value=True)
+    
     analyze_button = st.button("Analyze Article", type="primary")
 
     if analyze_button:
@@ -46,7 +48,13 @@ with tab1:
         else:
             with st.spinner("Analyzing Article..."):
                 result = predict(user_input)
+            st.session_state['result'] = result
+            st.session_state['user_input'] = user_input
+            st.session_state['explanation'] = None
 
+    if 'result' in st.session_state:
+            result = st.session_state['result']
+            
             st.divider()
 
             if result['label'] == 'Fake':
@@ -65,12 +73,12 @@ with tab1:
 
             st.divider()
             st.subheader("AI Explanation")
-
-            enable_explanation = st.checkbox("Generate AI Explanation (uses API limits)", value=True)
+            
             if enable_explanation:
-                with st.spinner("Generating Explanation..."):
-                    explanation = explain_prediction(user_input, result)   
-                st.markdown(explanation)
+                if st.session_state.get('explanation') is None:
+                    with st.spinner("Generating Explanation..."):
+                        st.session_state['explanation'] = explain_prediction(st.session_state['user_input'], result)   
+                st.markdown(st.session_state['user_input'])
             else:
                 st.info("AI Explanation disabled.")
 
