@@ -86,7 +86,7 @@ Not included in this repository due to size.
 ## Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/fake-news-detector.git
+git clone https://github.com/vansharora200-max/fake-news-detector.git
 cd fake-news-detector
 pip install -r requirements.txt
 echo "GEMINI_API_KEY=your_key_here" > .env
@@ -128,8 +128,8 @@ The model learned to associate wire service bylines with credibility rather
 than linguistic or factual features of the article itself.
 
 Adversarial probe confirming this:
-> *"Reuters reported that the moon is made of cheese. Washington Reuters
-> confirms that drinking bleach cures cancer."*
+> *"Reuters reported that the moon is made of cheese. Washington Reuters 
+    confirms that drinking bleach cures cancer."*
 > **Classified: 100% Real**
 
 **Distribution mismatch**
