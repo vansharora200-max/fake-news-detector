@@ -74,7 +74,7 @@ with tab1:
                 if st.session_state.get('explanation') is None:
                     with st.spinner("Generating Explanation..."):
                         st.session_state['explanation'] = explain_prediction(st.session_state['user_input'], result['lr'], result['cleaned_text'])   
-                st.markdown(st.session_state['user_input'])
+                st.markdown(st.session_state['explanation'])
             else:
                 st.info("AI Explanation disabled.")
 
