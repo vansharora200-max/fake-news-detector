@@ -44,6 +44,8 @@ def explain_prediction(raw_article, model_prediction_result, result_cleaned_text
         return response.text
 
     except Exception as e:
+        if '429' in str(e):
+            return 'AI explanation temporarily unavailable - API rate limit reached. The ML prediction is unaffected.'
         return f"Explanation unavailable at this time. Error: {str(e)}"
     
 def generate_article(topic, article_type='fake'):
