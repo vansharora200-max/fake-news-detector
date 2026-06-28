@@ -11,6 +11,9 @@ from sklearn.metrics import (
 from utils import clean
 import nltk
 nltk.download('stopwords', quiet=True)
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.svm import LinearSVC
+from sklearn.calibration import CalibratedClassifierCV
 
 def load_data(filepath):
     '''
@@ -58,47 +61,81 @@ def build_features(df):
     print(f'Feature matrix shape: {X_train_tfidf.shape}\n')
     return X_train_tfidf, X_test_tfidf, Y_train, Y_test, vectorizer
 
-def train_model(X_train_tfidf, Y_train):
+def train_models(X_train_tfidf, Y_train):
     '''
-    To Train logistic regression classifier.
+    To Train logistic regression, Multinomial Naive Bayes and Linear SVM classifier.
     '''
     print(f'Training Logistic Regression Model...')
-    model = LogisticRegression(
-        max_iter=1000,
-        random_state=42
-    )
-    model.fit(X_train_tfidf, Y_train)
-    print('Training Complete.\n')
-    return model
+    log_reg = LogisticRegression(max_iter=1000,random_state=42)
+    log_reg.fit(X_train_tfidf, Y_train)
+    print('Done')
+    print(f'Training Multinomial Naive Bayes Model...')
+    multi_nb = MultinomialNB()
+    multi_nb.fit(X_train_tfidf, Y_train)
+    print('Done')
+    print(f'Training Linear SVM Model...')
+    lin_svm_base = LinearSVC(max_iter=2000,random_state=42)
+    lin_svm = CalibratedClassifierCV(lin_svm_base, cv=5)
+    lin_svm.fit(X_train_tfidf, Y_train)
+    print('Done\n')
+    return log_reg, multi_nb, lin_svm
 
-def evaluate_model(model, X_test_tfidf, Y_test):
+def evaluate_models(lr, mnb, l_svm, X_test_tfidf, Y_test):
     '''
     Print evaluation metrics.
     '''
-    Y_pred = model.predict(X_test_tfidf)
+    Y_pred_lr = lr.predict(X_test_tfidf)
     print('=' * 50)
-    print(' EVALUATION RESULTS:')
+    print('LOGISTIC REGRESSION EVALUATION RESULTS:')
     print('=' * 50)
-    print(f'Accuracy  : {accuracy_score(Y_test,Y_pred):.4f}')
-    print(f'Precision : {precision_score(Y_test,Y_pred):.4f}')
-    print(f'Recall    : {recall_score(Y_test,Y_pred):.4f}')
-    print(f'F1 Score  : {f1_score(Y_test,Y_pred):.4f}')
+    print(f'Accuracy  : {accuracy_score(Y_test,Y_pred_lr):.4f}')
+    print(f'Precision : {precision_score(Y_test,Y_pred_lr):.4f}')
+    print(f'Recall    : {recall_score(Y_test,Y_pred_lr):.4f}')
+    print(f'F1 Score  : {f1_score(Y_test,Y_pred_lr):.4f}')
     print('=' * 50)
-    print('\nClassification Report:')
-    print(classification_report(Y_test,Y_pred,target_names=['Real','Fake']))
+    print('\nLinear Regression Classification Report:')
+    print(classification_report(Y_test,Y_pred_lr,target_names=['Real','Fake']))
 
-def save_artifacts(model, vectorizer, output_dir = 'models'):
+    Y_pred_mnb = mnb.predict(X_test_tfidf)
+    print('=' * 50)
+    print('MULTINOMIAL NAIVE BAYES EVALUATION RESULTS:')
+    print('=' * 50)
+    print(f'Accuracy  : {accuracy_score(Y_test,Y_pred_mnb):.4f}')
+    print(f'Precision : {precision_score(Y_test,Y_pred_mnb):.4f}')
+    print(f'Recall    : {recall_score(Y_test,Y_pred_mnb):.4f}')
+    print(f'F1 Score  : {f1_score(Y_test,Y_pred_mnb):.4f}')
+    print('=' * 50)
+    print('\nMultinomial Naive Bayes Classification Report:')
+    print(classification_report(Y_test,Y_pred_mnb,target_names=['Real','Fake']))
+
+    Y_pred_svm = l_svm.predict(X_test_tfidf)
+    print('=' * 50)
+    print('LINEAR SVM EVALUATION RESULTS:')
+    print('=' * 50)
+    print(f'Accuracy  : {accuracy_score(Y_test,Y_pred_svm):.4f}')
+    print(f'Precision : {precision_score(Y_test,Y_pred_svm):.4f}')
+    print(f'Recall    : {recall_score(Y_test,Y_pred_svm):.4f}')
+    print(f'F1 Score  : {f1_score(Y_test,Y_pred_svm):.4f}')
+    print('=' * 50)
+    print('\nLinear SVM Classification Report:')
+    print(classification_report(Y_test,Y_pred_svm,target_names=['Real','Fake']))
+
+def save_artifacts(lr, mnb, l_svm, vectorizer, output_dir = 'models'):
     '''
     Save trained models and vectorizer to disk.
     '''
     os.makedirs(output_dir, exist_ok=True)
-    model_path = os.path.join(output_dir, 'logistic_regression_model.pkl')
+    lr_path = os.path.join(output_dir, 'logistic_regression_model.pkl')
+    mnb_path = os.path.join(output_dir, 'Multinomial_Naive_Bayes_model.pkl')
+    l_svm_path = os.path.join(output_dir, 'Linear_SVM_model.pkl')
     vectorizer_path = os.path.join(output_dir, 'tfidf_vectorizer.pkl')
 
-    joblib.dump(model, model_path)
+    joblib.dump(lr, lr_path)
+    joblib.dump(mnb, mnb_path)
+    joblib.dump(l_svm, l_svm_path)
     joblib.dump(vectorizer, vectorizer_path)
 
-    print(f'\n Model saved to {model_path}')
+    print(f'\n Models saved to {lr_path}, {mnb_path} and {l_svm_path}')
     print(f'\n Vectorizer saved to {vectorizer_path}')
 
 
@@ -108,9 +145,9 @@ if __name__ == '__main__':
 
     df = load_data(dataset_path)
     X_train_tfidf, X_test_tfidf, Y_train, Y_test, vectorizer = build_features(df)
-    model = train_model(X_train_tfidf, Y_train)
-    evaluate_model(model, X_test_tfidf, Y_test)
-    save_artifacts(model, vectorizer)
+    lr, mnb, l_svm = train_models(X_train_tfidf, Y_train)    
+    evaluate_models(lr, mnb, l_svm, X_test_tfidf, Y_test)
+    save_artifacts(lr, mnb, l_svm, vectorizer)
 
     print('\nTraining pipeline complete.')
     print("Run 'streamlit run app.py' to launch the application.")

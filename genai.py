@@ -8,13 +8,13 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.5-flash')
 
-def explain_prediction(raw_article, prediction_result):
+def explain_prediction(raw_article, model_prediction_result, result_cleaned_text):
     '''
     Generates a natural language explanation for a news prediction.
     '''
-    label = prediction_result['label']
-    confidence = prediction_result['confidence'] * 100
-    cleaned = prediction_result['cleaned_text']
+    label = model_prediction_result['label']
+    confidence = model_prediction_result['confidence'] * 100
+    cleaned = result_cleaned_text
 
     prompt = f"""
     You are an expert fact-checker and media literacy educator.

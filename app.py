@@ -1,22 +1,28 @@
 import streamlit as st
 import joblib
-from predict import predict
+from predict import predict_all
 from genai import explain_prediction, generate_article
 from utils import clean
+def display_model_result(model_name, model_result):
+    st.subheader(model_name)
+    if model_result['label'] == 'Fake':
+        st.error(f"🚨 Verdict: FAKE NEWS - {model_result['confidence']*100:.1f}% confidence")
+    else:
+        st.success(f" Verdict: REAL NEWS - {model_result['confidence']*100:.1f}% confidence")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Fake Probability", f"{model_result['fake_probability']*100:.1f}%")
+    with col2:
+        st.metric("Real Probability", f"{model_result['real_probability']*100:.1f}%")
+
+    st.progress(model_result['fake_probability'], text="Fake likelihood")
+    st.progress(model_result['real_probability'], text="Real likelihood")
 
 st.set_page_config(
     page_title="Fake News Detector",
     page_icon="🔍",
     layout="wide"
 )
-
-@st.cache_resource
-def load_models():
-    vectorizer = joblib.load('models/tfidf_vectorizer.pkl')
-    model = joblib.load('models/logistic_regression_model.pkl')
-    return vectorizer, model
-
-vectorizer, model = load_models()
 
 st.title("🔍 Fake News Detector")
 st.markdown(
@@ -47,7 +53,7 @@ with tab1:
         
         else:
             with st.spinner("Analyzing Article..."):
-                result = predict(user_input)
+                result = predict_all(user_input)
             st.session_state['result'] = result
             st.session_state['user_input'] = user_input
             st.session_state['explanation'] = None
@@ -56,28 +62,18 @@ with tab1:
             result = st.session_state['result']
             
             st.divider()
-
-            if result['label'] == 'Fake':
-                st.error(f"🚨 Verdict: FAKE NEWS - {result['confidence']*100:.1f}% confidence")
-            else:
-                st.success(f" Verdict: REAL NEWS - {result['confidence']*100:.1f}% confidence")
-
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Fake Probability", f"{result['fake_probability']*100:.1f}%")
-            with col2:
-                st.metric("Real Probability", f"{result['real_probability']*100:.1f}%")
-
-            st.progress(result['fake_probability'], text="Fake likelihood")
-            st.progress(result['real_probability'], text="Real likelihood")
-
+            display_model_result('Logistic Regression', result['lr'])
+            st.divider()
+            display_model_result('Multinomial Naive Bayes', result['mnb'])
+            st.divider()
+            display_model_result('Linear SVM', result['svm'])
             st.divider()
             st.subheader("AI Explanation")
             
             if enable_explanation:
                 if st.session_state.get('explanation') is None:
                     with st.spinner("Generating Explanation..."):
-                        st.session_state['explanation'] = explain_prediction(st.session_state['user_input'], result)   
+                        st.session_state['explanation'] = explain_prediction(st.session_state['user_input'], result['lr'], result['cleaned_text'])   
                 st.markdown(st.session_state['user_input'])
             else:
                 st.info("AI Explanation disabled.")
